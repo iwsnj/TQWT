@@ -1,0 +1,9 @@
+TRANSFORM PARAMETERS:
+	 Transform: tqwt_radix2.m
+	 Q = 3.00
+	 r = 3.00
+	 levels = 23
+
+SALSA PARAMETERS: 
+	 mu = 1.00e-01
+	 iterations = 100

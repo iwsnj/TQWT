@@ -1,0 +1,277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>Tunable Q-factor Wavelet Transform: Verify PR</title>
+<meta name="generator" content="MATLAB 26.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-09-15">
+<meta name="DC.source" content="test_PR.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>Tunable Q-factor Wavelet Transform: Verify PR</h1>
+<p>Verify perfect reconstruction (PR) property of TQWT</p>
+<pre class="codeinput">
+<span class="comment">% Reference: 'Wavelet Transform with Tunable Q-Factor'</span>
+<span class="comment">% https://eeweb.engineering.nyu.edu/iselesni/TQWT</span>
+<span class="comment">% Ivan Selesnick</span>
+<span class="comment">% selesi@nyu.edu</span>
+<span class="comment">% NYU Tandon School of Engineering</span>
+
+<span class="comment">% November 2010</span>
+<span class="comment">% September 06, 2026</span>
+<span class="comment">% - Updated to include radix-2 TQWT in same file</span>
+
+clear
+
+<span class="keyword">for</span> k = 1:2
+
+    <span class="keyword">switch</span> k
+        <span class="keyword">case</span> 1
+            Q = 4; r = 3; J = 10;   <span class="comment">% High Q-factor wavelet transform</span>
+        <span class="keyword">case</span> 2
+            Q = 1; r = 3; J = 5;    <span class="comment">% Low Q-factor wavelet transform</span>
+    <span class="keyword">end</span>
+
+    fprintf(<span class="string">'\n'</span>)
+    fprintf(<span class="string">'TQWT with Q = %3.2f, r = %3.2f\n'</span>, Q, r)
+
+    beta = 2/(Q+1);
+    alpha = 1-beta/r;
+
+    <span class="keyword">for</span> i = 1:2
+        <span class="keyword">switch</span> i
+            <span class="keyword">case</span> 1
+                xform = @tqwt;
+                inv_xform = @itqwt;
+                fprintf(<span class="string">'Real TQWT:\n'</span>)
+            <span class="keyword">case</span> 2
+                xform = @tqwt_radix2;
+                inv_xform = @itqwt_radix2;
+                fprintf(<span class="string">'Radix-2 Real TQWT:\n'</span>)
+        <span class="keyword">end</span>
+
+        <span class="comment">% Verify PR for various lengths</span>
+        <span class="keyword">for</span> N = [400:2:420 2.^(7:10)]
+            x = rand(1,N) + 1j*rand(1,N);    <span class="comment">% Make test signal (complex-valued)</span>
+            J = floor(log2(beta*N/8)/log2(1/alpha));    <span class="comment">% number of levels</span>
+
+            w = xform(x,Q,r,J);             <span class="comment">% TQWT</span>
+            y = inv_xform(w,Q,r,N);         <span class="comment">% Inverse TQWT</span>
+            recon_err = max(abs(x - y));    <span class="comment">% Reconstruction error</span>
+            <span class="comment">% print reconstruction error:</span>
+            fprintf(<span class="string">'N = %4d, J = %3d: recon error = %e \n'</span>, N, J, recon_err)
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre>
+<pre class="codeoutput">
+TQWT with Q = 4.00, r = 3.00
+Real TQWT:
+N =  400, J =  20: recon error = 7.447602e-16 
+N =  402, J =  20: recon error = 8.937985e-16 
+N =  404, J =  21: recon error = 1.621268e-15 
+N =  406, J =  21: recon error = 6.979023e-16 
+N =  408, J =  21: recon error = 6.684428e-16 
+N =  410, J =  21: recon error = 9.036561e-16 
+N =  412, J =  21: recon error = 9.930137e-16 
+N =  414, J =  21: recon error = 7.791361e-16 
+N =  416, J =  21: recon error = 7.447602e-16 
+N =  418, J =  21: recon error = 6.581350e-16 
+N =  420, J =  21: recon error = 6.753223e-16 
+N =  128, J =  12: recon error = 5.661049e-16 
+N =  256, J =  17: recon error = 6.753223e-16 
+N =  512, J =  22: recon error = 7.771561e-16 
+N = 1024, J =  27: recon error = 1.023575e-15 
+Radix-2 Real TQWT:
+N =  400, J =  20: recon error = 5.795534e-16 
+N =  402, J =  20: recon error = 6.684428e-16 
+N =  404, J =  21: recon error = 5.629599e-16 
+N =  406, J =  21: recon error = 5.978734e-16 
+N =  408, J =  21: recon error = 5.978734e-16 
+N =  410, J =  21: recon error = 5.277666e-16 
+N =  412, J =  21: recon error = 5.038707e-16 
+N =  414, J =  21: recon error = 6.661338e-16 
+N =  416, J =  21: recon error = 6.473657e-16 
+N =  418, J =  21: recon error = 5.661049e-16 
+N =  420, J =  21: recon error = 6.192454e-16 
+N =  128, J =  12: recon error = 5.311767e-16 
+N =  256, J =  17: recon error = 7.021667e-16 
+N =  512, J =  22: recon error = 7.108896e-16 
+N = 1024, J =  27: recon error = 8.455207e-16 
+
+TQWT with Q = 1.00, r = 3.00
+Real TQWT:
+N =  400, J =   9: recon error = 5.978734e-16 
+N =  402, J =   9: recon error = 8.950904e-16 
+N =  404, J =   9: recon error = 1.755417e-15 
+N =  406, J =   9: recon error = 7.276994e-16 
+N =  408, J =   9: recon error = 8.082546e-16 
+N =  410, J =   9: recon error = 9.998811e-16 
+N =  412, J =   9: recon error = 1.180183e-15 
+N =  414, J =   9: recon error = 7.850462e-16 
+N =  416, J =   9: recon error = 8.005932e-16 
+N =  418, J =   9: recon error = 7.447602e-16 
+N =  420, J =   9: recon error = 7.164219e-16 
+N =  128, J =   6: recon error = 7.188121e-16 
+N =  256, J =   8: recon error = 5.551115e-16 
+N =  512, J =  10: recon error = 5.881301e-16 
+N = 1024, J =  11: recon error = 7.216450e-16 
+Radix-2 Real TQWT:
+N =  400, J =   9: recon error = 6.439353e-16 
+N =  402, J =   9: recon error = 6.684428e-16 
+N =  404, J =   9: recon error = 6.473657e-16 
+N =  406, J =   9: recon error = 5.904179e-16 
+N =  408, J =   9: recon error = 6.866350e-16 
+N =  410, J =   9: recon error = 6.992894e-16 
+N =  412, J =   9: recon error = 5.661049e-16 
+N =  414, J =   9: recon error = 8.455207e-16 
+N =  416, J =   9: recon error = 6.684428e-16 
+N =  418, J =   9: recon error = 7.196406e-16 
+N =  420, J =   9: recon error = 7.196406e-16 
+N =  128, J =   6: recon error = 4.577567e-16 
+N =  256, J =   8: recon error = 5.551115e-16 
+N =  512, J =  10: recon error = 6.866350e-16 
+N = 1024, J =  11: recon error = 7.108896e-16 
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+%% Tunable Q-factor Wavelet Transform: Verify PR
+% Verify perfect reconstruction (PR) property of TQWT
+
+% Reference: 'Wavelet Transform with Tunable Q-Factor'
+% https://eeweb.engineering.nyu.edu/iselesni/TQWT
+% Ivan Selesnick
+% selesi@nyu.edu
+% NYU Tandon School of Engineering
+
+% November 2010
+% September 06, 2026
+% - Updated to include radix-2 TQWT in same file
+
+clear
+
+for k = 1:2
+
+    switch k
+        case 1
+            Q = 4; r = 3; J = 10;   % High Q-factor wavelet transform
+        case 2
+            Q = 1; r = 3; J = 5;    % Low Q-factor wavelet transform
+    end
+
+    fprintf('\n')
+    fprintf('TQWT with Q = %3.2f, r = %3.2f\n', Q, r)
+
+    beta = 2/(Q+1);
+    alpha = 1-beta/r;
+
+    for i = 1:2
+        switch i
+            case 1
+                xform = @tqwt;
+                inv_xform = @itqwt;
+                fprintf('Real TQWT:\n')
+            case 2
+                xform = @tqwt_radix2;
+                inv_xform = @itqwt_radix2;
+                fprintf('Radix-2 Real TQWT:\n')
+        end
+
+        % Verify PR for various lengths
+        for N = [400:2:420 2.^(7:10)]
+            x = rand(1,N) + 1j*rand(1,N);    % Make test signal (complex-valued)
+            J = floor(log2(beta*N/8)/log2(1/alpha));    % number of levels
+
+            w = xform(x,Q,r,J);             % TQWT
+            y = inv_xform(w,Q,r,N);         % Inverse TQWT
+            recon_err = max(abs(x - y));    % Reconstruction error
+            % print reconstruction error:
+            fprintf('N = %4d, J = %3d: recon error = %e \n', N, J, recon_err)
+        end
+
+    end
+
+end
+
+
+
+##### SOURCE END #####
+-->
+</body>
+</html>

@@ -1,0 +1,780 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>resonance_demo_noisy: Resonance-based signal decomposition</title>
+<meta name="generator" content="MATLAB 26.1">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2026-09-15">
+<meta name="DC.source" content="resonance_noisy_demo.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<h1>resonance_demo_noisy: Resonance-based signal decomposition</h1>
+<!--introduction-->
+<p>Example illustrating the decomposition of a test signal into a high-resonance component and a low-resonance component (into an oscillatory component and a transient component).</p>
+<p>This version is based on approximation approximation: x ~ x1 + x2</p>
+<p>Reference: Resonance-Based Signal Decomposition: A New Sparsity-Enabled Signal Analysis Method. Signal Processing, 2010, doi:10.1016/j.sigpro.2010.10.018 I. W. Selesnick.</p>
+<!--/introduction-->
+<h2>Contents</h2>
+<div>
+<ul>
+<li>
+<a href="#1">Miscellaneous</a>
+</li>
+<li>
+<a href="#2">Set example parameters</a>
+</li>
+<li>
+<a href="#3">Verify perfect reconstruction</a>
+</li>
+<li>
+<a href="#4">Plot wavelets at final levels</a>
+</li>
+<li>
+<a href="#5">Perform MCA (decomposition)</a>
+</li>
+<li>
+<a href="#6">Compute cost function</a>
+</li>
+<li>
+<a href="#7">Display cost function versus iteration</a>
+</li>
+<li>
+<a href="#8">Display component signals</a>
+</li>
+<li>
+<a href="#9">Print Information</a>
+</li>
+</ul>
+</div>
+<h2 id="1">Miscellaneous</h2>
+<pre class="codeinput">
+<span class="comment">% close all</span>
+clear
+</pre>
+<h2 id="2">Set example parameters</h2>
+<pre class="codeinput">
+<span class="comment">% Select one of the following two lines</span>
+
+Example_Num = 1;              <span class="comment">% Artificial signal</span>
+<span class="comment">% Example_Num = 2;                % Speech waveform</span>
+<span class="comment">% Example_Num = 3;              % Artificial complex-valued signal</span>
+
+<span class="keyword">switch</span> Example_Num
+
+    <span class="keyword">case</span> 1
+
+        <span class="comment">% Artificial signal</span>
+
+        <span class="comment">% High Q-factor wavelet transform parameters</span>
+        Q1 = 3;
+        r1 = 3;
+        J1 = 19;
+
+        <span class="comment">% Low Q-factor wavelet transform parameters</span>
+        Q2 = 1;
+        r2 = 3;
+        J2 = 9;
+
+        <span class="comment">% Set MCA parameters</span>
+        Nit = 100;          <span class="comment">% Number of iterations</span>
+        A1 = 0.35;         <span class="comment">% lam1, lam2: regularization parameters</span>
+        A2 = 0.40;
+        mu = 0.1;          <span class="comment">% SALSA parameter</span>
+
+        <span class="comment">% Make test signal</span>
+        N = 2^9; <span class="comment">% N = 512;         % length of signal x is power of 2</span>
+        x1 = test_signal(5);        <span class="comment">% High-resonance signal</span>
+        x2 = test_signal(1);        <span class="comment">% Low-resonance signal</span>
+        x = x1 + x2;                <span class="comment">% Test signal (sum of high and low resonances)</span>
+
+        x = x + 0.1 * randn(1,N);
+
+        t = (0:N-1);                <span class="comment">% time axis</span>
+        fs = 1;
+        xlabel_txt = <span class="string">'TIME (SAMPLES)'</span>;
+        A = 2;                      <span class="comment">% y-axis extent for plots</span>
+
+        <span class="comment">% Utility to save a figure to a PDF file</span>
+        FS = FigureSaver(<span class="string">'figures/resonance_noisy_demo1/'</span>);
+
+        <span class="comment">% Display signals</span>
+        figure(1), clf
+        subplot(3,1,1)
+        plot(t,x)
+        title(<span class="string">'(NOISY) TEST SIGNAL'</span>)
+        ylim([-A A])
+        xlim([0 N])
+        xlabel(xlabel_txt)
+
+        orient <span class="string">tall</span>
+        drawnow
+        FS.SavePDF_fill(<span class="string">'Signals'</span>)
+
+    <span class="keyword">case</span> 2
+
+        <span class="comment">% Speech signal</span>
+        x = load(<span class="string">'speech1.txt'</span>);
+        fs = 16000;
+        x = x(:)';
+        N = 2^11;               <span class="comment">% length(x)</span>
+        t = (0:N-1)/fs;         <span class="comment">% time axis</span>
+
+        x = x + 0.02 * randn(1,N);      <span class="comment">% add noise</span>
+
+        xlabel_txt = <span class="string">'TIME (SECONDS)'</span>;
+        A = 0.3;
+
+        <span class="comment">% High Q-factor wavelet transform parameters</span>
+        Q1 = 4;
+        r1 = 3;
+        J1 = 30;
+
+        <span class="comment">% Low Q-factor wavelet transform parameters</span>
+        Q2 = 1;
+        r2 = 3;
+        J2 = 10;
+
+        <span class="comment">% Set MCA parameters</span>
+        Nit = 100;          <span class="comment">% Number of iterations</span>
+        A1 = 0.1;        <span class="comment">% lam1, lam2: regularization parameters</span>
+        A2 = 0.1;
+        mu = 0.5;          <span class="comment">% SALSA parameter</span>
+
+        <span class="comment">% Utility to save a figure to a PDF file</span>
+        FS = FigureSaver(<span class="string">'figures/resonance_noisy_demo2/'</span>);
+
+        <span class="comment">% Display signal</span>
+
+        figure(1), clf
+        subplot(3,1,1)
+        plot(t,x)
+        title(<span class="string">'SEECH WAVEFORM'</span>)
+        ylim([-A A])
+        xlim([0 N/fs])
+        xlabel(xlabel_txt)
+
+        orient <span class="string">landscape</span>
+        drawnow
+        FS.SavePDF(<span class="string">'Signals'</span>)
+
+    <span class="keyword">case</span> 3
+
+        <span class="comment">% Artificial complex-valued signal</span>
+
+        <span class="comment">% High Q-factor wavelet transform parameters</span>
+        Q1 = 3;
+        r1 = 3;
+        J1 = 19;
+
+        <span class="comment">% Low Q-factor wavelet transform parameters</span>
+        Q2 = 1;
+        r2 = 3;
+        J2 = 9;
+
+        <span class="comment">% Set MCA parameters</span>
+        Nit = 100;          <span class="comment">% Number of iterations</span>
+        A1 = 0.35;         <span class="comment">% lam1, lam2: regularization parameters</span>
+        A2 = 0.40;
+        mu = 0.1;          <span class="comment">% SALSA parameter</span>
+
+        <span class="comment">% Make test signal</span>
+        N = 2^9; <span class="comment">% N = 512;         % length of signal x is power of 2</span>
+        x1 = test_signal(12);        <span class="comment">% High-resonance signal</span>
+        x2 = test_signal(11);        <span class="comment">% Low-resonance signal</span>
+        x = x1 + x2;                <span class="comment">% Test signal (sum of high and low resonances)</span>
+
+        x = x + 0.1 * (randn(1,N) + 1j * randn(1,N));             <span class="comment">% add noise</span>
+
+        t = (0:N-1);                <span class="comment">% time axis</span>
+        fs = 1;
+        xlabel_txt = <span class="string">'TIME (SAMPLES)'</span>;
+        A = 2;                      <span class="comment">% y-axis extent for plots</span>
+
+        <span class="comment">% Function for printing a figure to a file</span>
+        FS = FigureSaver(<span class="string">'figures/resonance_noisy_demo3/'</span>);
+
+        <span class="comment">% Display signals</span>
+
+        figure(1), clf
+        subplot(4,1,1)
+        plot(t,real(x), t,imag(x))
+        title(<span class="string">'(NOISY) TEST SIGNAL'</span>)
+        box <span class="string">off</span>
+        ylim([-A A])
+        xlim([0 N])
+        xlabel(xlabel_txt)
+
+<span class="keyword">end</span>
+</pre>
+<img vspace="5" hspace="5" src="resonance_noisy_demo_01.png" alt=""> <h2 id="3">Verify perfect reconstruction</h2>
+<p>Check that transforms with selected parameters satisfy perfect reconstruction. (It is not really needed; just to double check.)</p>
+<pre class="codeinput">w1 = tqwt_radix2(x, Q1, r1, J1);
+y = itqwt_radix2(w1, Q1, r1, N);
+
+fprintf(<span class="string">'Transform 1 reconstruction error = %4.3e\n'</span>, max(abs(y-x)))
+
+w2 = tqwt_radix2(x, Q2, r2, J2);
+y = itqwt_radix2(w2, Q2, r2, N);
+
+fprintf(<span class="string">'Transform 2 reconstruction error = %4.3e\n'</span>, max(abs(y-x)))
+</pre>
+<pre class="codeoutput">Transform 1 reconstruction error = 5.551e-16
+Transform 2 reconstruction error = 8.882e-16
+</pre>
+<img vspace="5" hspace="5" src="resonance_noisy_demo_02.png" alt=""> <h2 id="4">Plot wavelets at final levels</h2>
+<pre class="codeinput">
+<span class="comment">% Compute wavelets</span>
+wlets1 = ComputeWavelets(N,Q1,r1,J1,<span class="string">'radix2'</span>);
+wlets2 = ComputeWavelets(N,Q2,r2,J2,<span class="string">'radix2'</span>);
+
+figure(2), clf
+subplot(2,1,1)
+plot(t, wlets1{J1})
+title(sprintf(<span class="string">'HIGH Q-FACTOR WAVELET AT LEVEL %d'</span>,J1))
+xlim([0 N/fs])
+ylim(1.2*(max(abs(wlets1{J1})))*[-1 1])
+xlabel(xlabel_txt)
+subplot(2,1,2)
+plot(t, wlets2{J2})
+title(sprintf(<span class="string">'LOW Q-FACTOR WAVELET AT LEVEL %d'</span>,J2))
+xlim([0 N/fs])
+ylim(1.2*(max(abs(wlets2{J2})))*[-1 1])
+xlabel(xlabel_txt)
+
+FS.SavePDF(<span class="string">'Wavelets'</span>)
+</pre>
+<img vspace="5" hspace="5" src="resonance_noisy_demo_03.png" alt=""> <img vspace="5" hspace="5" src="resonance_noisy_demo_04.png" alt=""> <h2 id="5">Perform MCA (decomposition)</h2>
+<pre class="codeinput">now1 = ComputeNow(N,Q1,r1,J1,<span class="string">'radix2'</span>);
+now2 = ComputeNow(N,Q2,r2,J2,<span class="string">'radix2'</span>);
+lam1 = A1*now1;
+lam2 = A2*now2;
+
+<span class="comment">% [y1,y2,w1s,w2s,costfn] = dualQd(x,Q1,r1,J1,Q2,r2,J2,lam1,lam2,mu,Nit,'plots');</span>
+[y1,y2,w1s,w2s,costfn] = dualQd(x,Q1,r1,J1,Q2,r2,J2,lam1,lam2,mu,Nit);
+<span class="comment">% [y1,y2,w1s,w2s] = dualQd(x,Q1,r1,J1,Q2,r2,J2,lam1,lam2,mu,Nit);</span>
+
+res = x - y1 - y2;  <span class="comment">% residual</span>
+
+rel_res = sqrt(mean(abs(res).^2))/sqrt(mean(abs(x).^2));
+
+fprintf(<span class="string">'relative RMS reconstruction error = %4.3e\n'</span>,rel_res);
+
+<span class="comment">% check</span>
+<span class="comment">% max(abs(y1-itqwt_radix2(w1s,Q1,r1,N)))        % should be zero</span>
+<span class="comment">% max(abs(y2-itqwt_radix2(w2s,Q2,r2,N)))        % should be zero</span>
+</pre>
+<pre class="codeoutput">relative RMS reconstruction error = 1.714e-01
+</pre>
+<h2 id="6">Compute cost function</h2>
+<pre class="codeinput">cost = sum(abs(x - y1 - y2).^2);
+<span class="keyword">for</span> j = 1:J1+1
+    cost = cost + lam1(j)*sum(abs(w1s{j}));
+<span class="keyword">end</span>
+<span class="keyword">for</span> j = 1:J2+1
+    cost = cost + lam2(j)*sum(abs(w2s{j}));
+<span class="keyword">end</span>
+
+fprintf(<span class="string">'Objective function: %e\n'</span>, cost);
+
+<span class="comment">% check consistency between 'cost' and final value of 'costfn'</span>
+cost_err = costfn(end) - cost;
+fprintf(<span class="string">'Cost function calculation error: %d\n'</span>, cost_err)
+</pre>
+<pre class="codeoutput">Objective function: 1.566606e+01
+Cost function calculation error: 0
+</pre>
+<h2 id="7">Display cost function versus iteration</h2>
+<p>The decomposition is based on minimizing a cost function by an iterative optimization algorithm (dualQd). It can be useful to inspect the value of the cost function versus the iteration number to see if the algorithm has converged satisfactorily.</p>
+<pre class="codeinput">figure(3)
+clf
+plot(1:Nit, costfn)
+xlabel(<span class="string">'ITERATION'</span>)
+xlim([0 Nit])
+title(<span class="string">'COST FUNCTION'</span>)
+grid
+FS.SavePDF(<span class="string">'Cost_Function'</span>)
+</pre>
+<img vspace="5" hspace="5" src="resonance_noisy_demo_05.png" alt=""> <h2 id="8">Display component signals</h2>
+<p>The high Q-factor (high-resonance) and low Q-factor (low-resonance) components obtained by minimizing the cost function.</p>
+<pre class="codeinput">figure(4)
+clf
+
+subplot(4,1,1)
+<span class="keyword">if</span> isreal(x)
+    plot(t,x)
+<span class="keyword">else</span>
+    plot(t,real(x), t,imag(x))
+<span class="keyword">end</span>
+axis([0 N/fs -A A])
+title(<span class="string">'(NOISY) SIGNAL'</span>)
+
+subplot(4,1,2)
+<span class="keyword">if</span> isreal(y1)
+    plot(t,y1)
+<span class="keyword">else</span>
+    plot(t,real(y1), t,imag(y1))
+<span class="keyword">end</span>
+axis([0 N/fs -A A])
+title(<span class="string">'HIGH-RESONANCE COMPONENT'</span>)
+
+subplot(4,1,3)
+<span class="keyword">if</span> isreal(y2)
+    plot(t,y2)
+<span class="keyword">else</span>
+    plot(t,real(y2), t,imag(y2))
+<span class="keyword">end</span>
+axis([0 N/fs -A A])
+title(<span class="string">'LOW-RESONANCE COMPONENT'</span>)
+
+subplot(4,1,4)
+<span class="keyword">if</span> isreal(res)
+    plot(t, res)
+    axis([0 N/fs -A A])
+<span class="keyword">else</span>
+    plot(t, real(res), t, imag(res))
+    axis([0 N/fs -A A])
+<span class="keyword">end</span>
+title(<span class="string">'RESIDUAL'</span>)
+
+xlabel(xlabel_txt)
+
+orient <span class="string">tall</span>
+<span class="keyword">if</span> Example_Num == 2
+    orient <span class="string">landscape</span>
+<span class="keyword">end</span>
+FS.SavePDF_fill(<span class="string">'Components'</span>)
+</pre>
+<img vspace="5" hspace="5" src="resonance_noisy_demo_06.png" alt=""> <h2 id="9">Print Information</h2>
+<pre class="codeinput">file_name = sprintf(<span class="string">'figures/resonance_noisy_demo%d/info.txt'</span>,Example_Num);
+fid = fopen(file_name,<span class="string">'w'</span>);
+
+fprintf(fid,<span class="string">'TRANSFORM TYPE: tqwt_radix2\n'</span>);
+fprintf(fid,<span class="string">' TQWT 1: Q = %4.2f, r = %4.2f, levels = %d\n'</span>,Q1,r1,J1);
+fprintf(fid,<span class="string">' TQWT 2: Q = %4.2f, r = %4.2f, levels = %d\n\n'</span>,Q2,r2,J2);
+fprintf(fid,<span class="string">'SALSA PARAMETERS: \n'</span>);
+<span class="comment">% fprintf(fid,' lambda1 = %.3e \n lambda2 = %.3e \n mu = %.3e\n', lam1, lam2, mu);</span>
+fprintf(fid,<span class="string">' mu = %.3e\n'</span>, mu);
+fprintf(fid,<span class="string">' iterations = %d\n'</span>,Nit);
+
+fclose(fid);
+</pre>
+<img vspace="5" hspace="5" src="resonance_noisy_demo_07.png" alt=""> <p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2026a</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+%% resonance_demo_noisy: Resonance-based signal decomposition
+% Example illustrating the decomposition of a test signal
+% into a high-resonance component and a low-resonance component
+% (into an oscillatory component and a transient component).
+%
+% This version is based on approximation approximation: x ~ x1 + x2
+%
+% Reference:
+% Resonance-Based Signal Decomposition: A New Sparsity-Enabled Signal Analysis Method.
+% Signal Processing, 2010, doi:10.1016/j.sigpro.2010.10.018
+% I. W. Selesnick.
+
+%% Miscellaneous
+
+% close all
+clear
+
+%% Set example parameters
+
+% Select one of the following two lines
+
+Example_Num = 1;              % Artificial signal
+% Example_Num = 2;                % Speech waveform
+% Example_Num = 3;              % Artificial complex-valued signal
+
+switch Example_Num
+
+    case 1
+
+        % Artificial signal
+
+        % High Q-factor wavelet transform parameters
+        Q1 = 3;
+        r1 = 3;
+        J1 = 19;
+
+        % Low Q-factor wavelet transform parameters
+        Q2 = 1;
+        r2 = 3;
+        J2 = 9;
+
+        % Set MCA parameters
+        Nit = 100;          % Number of iterations
+        A1 = 0.35;         % lam1, lam2: regularization parameters
+        A2 = 0.40;
+        mu = 0.1;          % SALSA parameter
+
+        % Make test signal
+        N = 2^9; % N = 512;         % length of signal x is power of 2
+        x1 = test_signal(5);        % High-resonance signal
+        x2 = test_signal(1);        % Low-resonance signal
+        x = x1 + x2;                % Test signal (sum of high and low resonances)
+
+        x = x + 0.1 * randn(1,N);
+
+        t = (0:N-1);                % time axis
+        fs = 1;
+        xlabel_txt = 'TIME (SAMPLES)';
+        A = 2;                      % y-axis extent for plots
+
+        % Utility to save a figure to a PDF file
+        FS = FigureSaver('figures/resonance_noisy_demo1/');
+
+        % Display signals
+        figure(1), clf
+        subplot(3,1,1)
+        plot(t,x)
+        title('(NOISY) TEST SIGNAL')
+        ylim([-A A])
+        xlim([0 N])
+        xlabel(xlabel_txt)
+
+        orient tall
+        drawnow
+        FS.SavePDF_fill('Signals')
+
+    case 2
+
+        % Speech signal
+        x = load('speech1.txt');
+        fs = 16000;
+        x = x(:)';
+        N = 2^11;               % length(x)
+        t = (0:N-1)/fs;         % time axis
+
+        x = x + 0.02 * randn(1,N);      % add noise
+
+        xlabel_txt = 'TIME (SECONDS)';
+        A = 0.3;
+
+        % High Q-factor wavelet transform parameters
+        Q1 = 4;
+        r1 = 3;
+        J1 = 30;
+
+        % Low Q-factor wavelet transform parameters
+        Q2 = 1;
+        r2 = 3;
+        J2 = 10;
+
+        % Set MCA parameters
+        Nit = 100;          % Number of iterations
+        A1 = 0.1;        % lam1, lam2: regularization parameters
+        A2 = 0.1;
+        mu = 0.5;          % SALSA parameter
+
+        % Utility to save a figure to a PDF file
+        FS = FigureSaver('figures/resonance_noisy_demo2/');
+
+        % Display signal
+
+        figure(1), clf
+        subplot(3,1,1)
+        plot(t,x)
+        title('SEECH WAVEFORM')
+        ylim([-A A])
+        xlim([0 N/fs])
+        xlabel(xlabel_txt)
+
+        orient landscape
+        drawnow
+        FS.SavePDF('Signals')
+
+    case 3
+
+        % Artificial complex-valued signal
+
+        % High Q-factor wavelet transform parameters
+        Q1 = 3;
+        r1 = 3;
+        J1 = 19;
+
+        % Low Q-factor wavelet transform parameters
+        Q2 = 1;
+        r2 = 3;
+        J2 = 9;
+
+        % Set MCA parameters
+        Nit = 100;          % Number of iterations
+        A1 = 0.35;         % lam1, lam2: regularization parameters
+        A2 = 0.40;
+        mu = 0.1;          % SALSA parameter
+
+        % Make test signal
+        N = 2^9; % N = 512;         % length of signal x is power of 2
+        x1 = test_signal(12);        % High-resonance signal
+        x2 = test_signal(11);        % Low-resonance signal
+        x = x1 + x2;                % Test signal (sum of high and low resonances)
+
+        x = x + 0.1 * (randn(1,N) + 1j * randn(1,N));             % add noise
+
+        t = (0:N-1);                % time axis
+        fs = 1;
+        xlabel_txt = 'TIME (SAMPLES)';
+        A = 2;                      % y-axis extent for plots
+
+        % Function for printing a figure to a file
+        FS = FigureSaver('figures/resonance_noisy_demo3/');
+
+        % Display signals
+
+        figure(1), clf
+        subplot(4,1,1)
+        plot(t,real(x), t,imag(x))
+        title('(NOISY) TEST SIGNAL')
+        box off
+        ylim([-A A])
+        xlim([0 N])
+        xlabel(xlabel_txt)
+
+end
+
+
+%% Verify perfect reconstruction
+% Check that transforms with selected parameters satisfy perfect
+% reconstruction. (It is not really needed; just to double check.)
+
+w1 = tqwt_radix2(x, Q1, r1, J1);
+y = itqwt_radix2(w1, Q1, r1, N);
+
+fprintf('Transform 1 reconstruction error = %4.3e\n', max(abs(y-x)))
+
+w2 = tqwt_radix2(x, Q2, r2, J2);
+y = itqwt_radix2(w2, Q2, r2, N);
+
+fprintf('Transform 2 reconstruction error = %4.3e\n', max(abs(y-x)))
+
+
+%% Plot wavelets at final levels
+
+% Compute wavelets
+wlets1 = ComputeWavelets(N,Q1,r1,J1,'radix2');
+wlets2 = ComputeWavelets(N,Q2,r2,J2,'radix2');
+
+figure(2), clf
+subplot(2,1,1)
+plot(t, wlets1{J1})
+title(sprintf('HIGH Q-FACTOR WAVELET AT LEVEL %d',J1))
+xlim([0 N/fs])
+ylim(1.2*(max(abs(wlets1{J1})))*[-1 1])
+xlabel(xlabel_txt)
+subplot(2,1,2)
+plot(t, wlets2{J2})
+title(sprintf('LOW Q-FACTOR WAVELET AT LEVEL %d',J2))
+xlim([0 N/fs])
+ylim(1.2*(max(abs(wlets2{J2})))*[-1 1])
+xlabel(xlabel_txt)
+
+FS.SavePDF('Wavelets')
+
+
+
+%% Perform MCA (decomposition)
+
+now1 = ComputeNow(N,Q1,r1,J1,'radix2');
+now2 = ComputeNow(N,Q2,r2,J2,'radix2');
+lam1 = A1*now1;
+lam2 = A2*now2;
+
+% [y1,y2,w1s,w2s,costfn] = dualQd(x,Q1,r1,J1,Q2,r2,J2,lam1,lam2,mu,Nit,'plots');
+[y1,y2,w1s,w2s,costfn] = dualQd(x,Q1,r1,J1,Q2,r2,J2,lam1,lam2,mu,Nit);
+% [y1,y2,w1s,w2s] = dualQd(x,Q1,r1,J1,Q2,r2,J2,lam1,lam2,mu,Nit);
+
+res = x - y1 - y2;  % residual
+
+rel_res = sqrt(mean(abs(res).^2))/sqrt(mean(abs(x).^2));
+
+fprintf('relative RMS reconstruction error = %4.3e\n',rel_res);
+
+% check
+% max(abs(y1-itqwt_radix2(w1s,Q1,r1,N)))        % should be zero
+% max(abs(y2-itqwt_radix2(w2s,Q2,r2,N)))        % should be zero
+
+
+
+%% Compute cost function
+
+cost = sum(abs(x - y1 - y2).^2);
+for j = 1:J1+1
+    cost = cost + lam1(j)*sum(abs(w1s{j}));
+end
+for j = 1:J2+1
+    cost = cost + lam2(j)*sum(abs(w2s{j}));
+end
+
+fprintf('Objective function: %e\n', cost);
+
+% check consistency between 'cost' and final value of 'costfn'
+cost_err = costfn(end) - cost;
+fprintf('Cost function calculation error: %d\n', cost_err)
+
+
+%% Display cost function versus iteration
+% The decomposition is based on minimizing a cost function
+% by an iterative optimization algorithm (dualQd).
+% It can be useful to inspect the value of the cost function
+% versus the iteration number to see if the algorithm
+% has converged satisfactorily.
+
+figure(3)
+clf
+plot(1:Nit, costfn)
+xlabel('ITERATION')
+xlim([0 Nit])
+title('COST FUNCTION')
+grid
+FS.SavePDF('Cost_Function')
+
+
+
+%% Display component signals
+% The high Q-factor (high-resonance) and low Q-factor (low-resonance) components
+% obtained by minimizing the cost function.
+
+figure(4)
+clf
+
+subplot(4,1,1)
+if isreal(x)
+    plot(t,x)
+else
+    plot(t,real(x), t,imag(x))
+end
+axis([0 N/fs -A A])
+title('(NOISY) SIGNAL')
+
+subplot(4,1,2)
+if isreal(y1)
+    plot(t,y1)
+else
+    plot(t,real(y1), t,imag(y1))
+end
+axis([0 N/fs -A A])
+title('HIGH-RESONANCE COMPONENT')
+
+subplot(4,1,3)
+if isreal(y2)
+    plot(t,y2)
+else
+    plot(t,real(y2), t,imag(y2))
+end
+axis([0 N/fs -A A])
+title('LOW-RESONANCE COMPONENT')
+
+subplot(4,1,4)
+if isreal(res)
+    plot(t, res)
+    axis([0 N/fs -A A])
+else
+    plot(t, real(res), t, imag(res))
+    axis([0 N/fs -A A])
+end
+title('RESIDUAL')
+
+xlabel(xlabel_txt)
+
+orient tall
+if Example_Num == 2
+    orient landscape
+end
+FS.SavePDF_fill('Components')
+
+%% Print Information
+
+file_name = sprintf('figures/resonance_noisy_demo%d/info.txt',Example_Num);
+fid = fopen(file_name,'w');
+
+fprintf(fid,'TRANSFORM TYPE: tqwt_radix2\n');
+fprintf(fid,' TQWT 1: Q = %4.2f, r = %4.2f, levels = %d\n',Q1,r1,J1);
+fprintf(fid,' TQWT 2: Q = %4.2f, r = %4.2f, levels = %d\n\n',Q2,r2,J2);
+fprintf(fid,'SALSA PARAMETERS: \n');
+% fprintf(fid,' lambda1 = %.3e \n lambda2 = %.3e \n mu = %.3e\n', lam1, lam2, mu);
+fprintf(fid,' mu = %.3e\n', mu);
+fprintf(fid,' iterations = %d\n',Nit);
+
+fclose(fid);
+
+
+
+
+##### SOURCE END #####
+-->
+</body>
+</html>
